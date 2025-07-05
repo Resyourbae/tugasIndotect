@@ -15,14 +15,14 @@ function App() {
         </p>
       </div>
       <div className="right">
-        <h2>Create Account</h2>
+        <h2>Login</h2>
         <form >
           <input type="text" placeholder="Nama" />
           <input type="email" placeholder="Email" />
           <input type="password" placeholder="Password" />
-          <button type="submit">Create Account</button>
+          <button type="submit">Login</button>
           <p className="login-text">
-            Sudah Punya Akun? <a href="#">Login</a>
+            Belum Punya Akun? <a href="#">Daftar </a>
           </p>
         </form>
       </div>
