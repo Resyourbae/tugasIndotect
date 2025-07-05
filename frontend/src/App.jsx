@@ -1,32 +1,21 @@
-import { useState } from 'react'
-import './App.css'
-
-import React from "react";
-
+import React, { useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import Register from "./pages/register";
+import Login from "./pages/login";
+import Profile from "./pages/Profile";
 
 function App() {
+  // Simulasi login (ganti dengan logic auth asli jika sudah ada backend)
+  const [isLogin, setIsLogin] = useState(false);
+
   return (
-    <div className="container">
-      <div className="left">
-        <h1>HALO!</h1>
-        <p>
-          Selamat Datang
-          di Website Kami.
-        </p>
-      </div>
-      <div className="right">
-        <h2>Create Account</h2>
-        <form >
-          <input type="text" placeholder="Nama" />
-          <input type="email" placeholder="Email" />
-          <input type="password" placeholder="Password" />
-          <button type="submit">Create Account</button>
-          <p className="login-text">
-            Sudah Punya Akun? <a href="#">Login</a>
-          </p>
-        </form>
-      </div>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={isLogin ? <Navigate to="/profile" /> : <Login setIsLogin={setIsLogin} />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/profile" element={isLogin ? <Profile /> : <Navigate to="/" />} />
+      </Routes>
+    </Router>
   );
 }
 
