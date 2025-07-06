@@ -1,25 +1,98 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { API_URL } from "../api";
 
 function Profile() {
-  // Data statis contoh
   const [profile, setProfile] = useState({
-    nama: "Resya Anggara",
-    email: "resyaanggara98@gmail.com",
-    username: "resya123",
-    bio: "Halo, saya Resya!",
+    nama: "",
+    email: "",
+    username: "",
+    bio: "",
   });
   const [edit, setEdit] = useState(false);
   const [form, setForm] = useState(profile);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  
+
+  useEffect(() => {
+    // Ambil username dari localStorage (set di login)
+    const username = localStorage.getItem("username");
+    if (!username) {
+      setError("Tidak ada username ditemukan.");
+      setLoading(false);
+      return;
+    }
+    fetch(`${API_URL}/user/profile?username=${username}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.username) {
+          setProfile({
+            nama: data.nama,
+            email: data.email,
+            username: data.username,
+            bio: data.bio,
+          });
+          setForm({
+            nama: data.nama,
+            email: data.email,
+            username: data.username,
+            bio: data.bio,
+          });
+        } else {
+          setError(data.error || "Gagal mengambil data profil.");
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        setError("Gagal terhubung ke server.");
+        setLoading(false);
+      });
+  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    setProfile(form);
-    setEdit(false);
+    try {
+      //GANTI URL NYA SETIAP KALI RESTART HOSTING NGROK
+      const res = await fetch("http://localhost:5000/user/profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: form.username,
+          nama: form.nama,
+          bio: form.bio,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setProfile(form);
+        setEdit(false);
+      } else {
+        alert(data.error || "Gagal update profil.");
+      }
+    } catch {
+      alert("Gagal terhubung ke server.");
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#a8d0d3]">
+        <div className="text-xl text-black">Loading...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#a8d0d3]">
+        <div className="text-xl text-red-600">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#a8d0d3]">
@@ -78,6 +151,7 @@ function Profile() {
               placeholder="Username"
               className="w-full px-4 py-3 bg-[#393939] text-white font-bold border-none rounded focus:outline-none"
               required
+              disabled
             />
             <textarea
               name="bio"
